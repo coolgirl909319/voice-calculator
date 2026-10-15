@@ -1,0 +1,748 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invartic Voice Calculator</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #0c0b18;
+  color: #f5f3ff;
+  min-height: 100vh;
+  padding: 25px 16px;
+  background-image:
+    radial-gradient(ellipse at top left, #33215d 0%, transparent 45%),
+    radial-gradient(ellipse at bottom right, #102e43 0%, transparent 45%);
+}
+
+header {
+  text-align: center;
+  margin: 10px auto 30px;
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #c4b5fd;
+}
+
+.logo span {
+  color: #67e8f9;
+}
+
+header p {
+  color: #aaa5c3;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.container {
+  max-width: 950px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 0.8fr);
+  gap: 20px;
+}
+
+.panel {
+  background: rgba(24, 22, 43, 0.92);
+  border: 1px solid #37334f;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 15px 45px #0003;
+}
+
+h2 {
+  font-size: 19px;
+  margin-bottom: 18px;
+}
+
+.display {
+  background: #111020;
+  border: 1px solid #38324f;
+  border-radius: 15px;
+  padding: 18px;
+  margin-bottom: 17px;
+}
+
+#expression {
+  width: 100%;
+  background: transparent;
+  color: #d7d1ed;
+  border: none;
+  outline: none;
+  font-size: 19px;
+}
+
+.result-label {
+  color: #9993b6;
+  font-size: 12px;
+  margin-top: 17px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#result {
+  font-size: clamp(27px, 5vw, 38px);
+  font-weight: 800;
+  color: #67e8f9;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+button {
+  font-family: inherit;
+  border: 1px solid #403958;
+  background: #26233c;
+  color: #f5f3ff;
+  border-radius: 12px;
+  min-height: 49px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.18s;
+}
+
+button:hover {
+  background: #3a3157;
+  transform: translateY(-1px);
+}
+
+button:focus-visible {
+  outline: 2px solid #67e8f9;
+  outline-offset: 2px;
+}
+
+.operator {
+  color: #c4b5fd;
+  background: #302849;
+}
+
+.clear {
+  color: #fda4af;
+  background: #40232f;
+}
+
+.equals {
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  border: none;
+  color: white;
+}
+
+.voice-button {
+  width: 100%;
+  min-height: 59px;
+  margin: 16px 0 10px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(100deg, #7c3aed, #4f46e5);
+  font-size: 16px;
+}
+
+.voice-button.listening {
+  background: linear-gradient(100deg, #be123c, #7c3aed);
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  50% { opacity: 0.75; }
+}
+
+.voice-status {
+  font-size: 13px;
+  color: #aaa5c3;
+  text-align: center;
+  min-height: 36px;
+  line-height: 1.5;
+}
+
+.tips {
+  background: #111020;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #b9b3d2;
+  line-height: 1.8;
+}
+
+.tips strong {
+  color: #c4b5fd;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.history-header h2 {
+  margin: 0;
+}
+
+.small-button {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+#history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  background: #111020;
+  border: 1px solid #302b46;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.history-item:hover {
+  border-color: #8b5cf6;
+}
+
+.history-expression {
+  color: #aaa5c3;
+  font-size: 13px;
+}
+
+.history-result {
+  color: #67e8f9;
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+.empty {
+  color: #85809e;
+  text-align: center;
+  padding: 40px 5px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+footer {
+  text-align: center;
+  color: #77728f;
+  font-size: 12px;
+  margin: 25px 0 5px;
+}
+
+@media (max-width: 680px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  header {
+    margin-bottom: 22px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">INVARTIC<span>.</span></div>
+  <p>Your voice. Your numbers. Your answer.</p>
+</header>
+
+<main class="container">
+
+  <section class="panel">
+    <h2>🧮 Smart Calculator</h2>
+
+    <div class="display">
+      <input
+        id="expression"
+        type="text"
+        placeholder="Enter a calculation..."
+        autocomplete="off"
+        aria-label="Math expression"
+      >
+      <div class="result-label">Your answer</div>
+      <div id="result" aria-live="polite">0</div>
+    </div>
+
+    <div class="buttons">
+      <button class="clear" onclick="clearAll()">AC</button>
+      <button class="operator" onclick="backspace()">⌫</button>
+      <button class="operator" onclick="add('/')">÷</button>
+      <button class="operator" onclick="add('*')">×</button>
+
+      <button onclick="add('7')">7</button>
+      <button onclick="add('8')">8</button>
+      <button onclick="add('9')">9</button>
+      <button class="operator" onclick="add('-')">−</button>
+
+      <button onclick="add('4')">4</button>
+      <button onclick="add('5')">5</button>
+      <button onclick="add('6')">6</button>
+      <button class="operator" onclick="add('+')">+</button>
+
+      <button onclick="add('1')">1</button>
+      <button onclick="add('2')">2</button>
+      <button onclick="add('3')">3</button>
+      <button class="operator" onclick="add('(')">( )</button>
+
+      <button onclick="add('0')">0</button>
+      <button onclick="add('.')">.</button>
+      <button class="operator" onclick="add('^')">xʸ</button>
+      <button class="equals" onclick="calculate()">=</button>
+    </div>
+
+    <button id="voiceButton" class="voice-button" onclick="startListening()">
+      🎙️ Speak your calculation
+    </button>
+
+    <div id="voiceStatus" class="voice-status" aria-live="polite">
+      Tap the microphone and say a calculation.
+    </div>
+
+    <div class="tips">
+      <strong>Try saying:</strong><br>
+      “400 plus 500”<br>
+      “25 times 8”<br>
+      “100 divided by 4”<br>
+      “Open bracket 5 plus 3 close bracket times 2”
+    </div>
+  </section>
+
+  <aside class="panel">
+    <div class="history-header">
+      <h2>🕘 History</h2>
+      <button class="small-button" onclick="clearHistory()">
+        Clear all
+      </button>
+    </div>
+
+    <div id="history">
+      <div class="empty">
+        No calculations yet.<br>
+        Your answers will appear here.
+      </div>
+    </div>
+  </aside>
+
+</main>
+
+<footer>
+  INVARTIC · Making maths simpler
+</footer>
+
+<script>
+const expressionInput = document.getElementById("expression");
+const resultDisplay = document.getElementById("result");
+const voiceStatus = document.getElementById("voiceStatus");
+const voiceButton = document.getElementById("voiceButton");
+const historyBox = document.getElementById("history");
+
+let historyItems = [];
+let recognition = null;
+let listening = false;
+let lastAnswer = 0;
+
+function add(value) {
+  expressionInput.value += value;
+  expressionInput.focus();
+}
+
+function clearAll() {
+  expressionInput.value = "";
+  resultDisplay.textContent = "0";
+  voiceStatus.textContent = "Ready for your next calculation.";
+}
+
+function backspace() {
+  expressionInput.value = expressionInput.value.slice(0, -1);
+  expressionInput.focus();
+}
+
+// Safe maths parser: does not use eval().
+function solveMath(input) {
+  const tokens = input.match(
+    /\d*\.?\d+(?:e[+-]?\d+)?|[()+\-*/%^]/gi
+  );
+
+  if (!tokens || tokens.join("") !== input.replace(/\s+/g, "")) {
+    throw Error("Please enter a valid calculation.");
+  }
+
+  let pos = 0;
+
+  function peek() {
+    return tokens[pos];
+  }
+
+  function take() {
+    return tokens[pos++];
+  }
+
+  function primary() {
+    const token = take();
+
+    if (token === "(") {
+      const value = addSub();
+      if (take() !== ")") throw Error("Missing closing bracket.");
+      return value;
+    }
+
+    if (token === "+") return primary();
+    if (token === "-") return -primary();
+
+    if (!token || !/^\d*\.?\d+(?:e[+-]?\d+)?$/i.test(token)) {
+      throw Error("Check your numbers and operators.");
+    }
+
+    const number = Number(token);
+    if (!Number.isFinite(number)) throw Error("Invalid number.");
+    return number;
+  }
+
+  function power() {
+    const left = primary();
+    if (peek() === "^") {
+      take();
+      return left ** unary();
+    }
+    return left;
+  }
+
+  function unary() {
+    if (peek() === "+") {
+      take();
+      return unary();
+    }
+    if (peek() === "-") {
+      take();
+      return -unary();
+    }
+    return power();
+  }
+
+  function multiply() {
+    let value = unary();
+
+    while (["*", "/", "%"].includes(peek())) {
+      const op = take();
+      const right = unary();
+
+      if ((op === "/" || op === "%") && right === 0) {
+        throw Error("You cannot divide by zero.");
+      }
+
+      if (op === "*") value *= right;
+      if (op === "/") value /= right;
+      if (op === "%") value %= right;
+    }
+
+    return value;
+  }
+
+  function addSub() {
+    let value = multiply();
+
+    while (peek() === "+" || peek() === "-") {
+      const op = take();
+      const right = multiply();
+      value = op === "+" ? value + right : value - right;
+    }
+
+    return value;
+  }
+
+  const answer = addSub();
+
+  if (pos !== tokens.length || !Number.isFinite(answer)) {
+    throw Error("That calculation is too large or invalid.");
+  }
+
+  return answer;
+}
+
+function formatNumber(number) {
+  if (!Number.isFinite(number)) return String(number);
+
+  return Number(number.toPrecision(12)).toLocaleString("en-US", {
+    maximumFractionDigits: 10,
+    useGrouping: false
+  });
+}
+
+function calculate() {
+  const input = expressionInput.value.trim();
+
+  if (!input) {
+    voiceStatus.textContent = "Enter or speak a calculation first.";
+    return;
+  }
+
+  try {
+    const answer = solveMath(input);
+    lastAnswer = answer;
+    resultDisplay.textContent = formatNumber(answer);
+    voiceStatus.textContent = "Calculation complete!";
+
+    addHistory(input, answer);
+  } catch (error) {
+    resultDisplay.textContent = "Try again";
+    voiceStatus.textContent = error.message;
+  }
+}
+
+function addHistory(expression, answer) {
+  historyItems.unshift({
+    expression,
+    answer: formatNumber(answer)
+  });
+
+  historyItems = historyItems.slice(0, 30);
+  renderHistory();
+}
+
+function renderHistory() {
+  historyBox.replaceChildren();
+
+  if (!historyItems.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "No calculations yet. Your answers will appear here.";
+    historyBox.appendChild(empty);
+    return;
+  }
+
+  historyItems.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "history-item";
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `Reuse ${item.expression}`);
+
+    const expr = document.createElement("div");
+    expr.className = "history-expression";
+    expr.textContent = item.expression;
+
+    const ans = document.createElement("div");
+    ans.className = "history-result";
+    ans.textContent = "= " + item.answer;
+
+    card.append(expr, ans);
+
+    const reuse = () => {
+      expressionInput.value = item.expression;
+      resultDisplay.textContent = item.answer;
+    };
+
+    card.addEventListener("click", reuse);
+    card.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        reuse();
+      }
+    });
+
+    historyBox.appendChild(card);
+  });
+}
+
+function clearHistory() {
+  historyItems = [];
+  renderHistory();
+  voiceStatus.textContent = "Calculation history cleared.";
+}
+
+// Convert spoken maths words into a mathematical expression.
+function spokenToMath(text) {
+  let s = text.toLowerCase().trim();
+
+  s = s.replace(/[?,]/g, " ");
+  s = s.replace(/\bwhat is\b|\bcalculate\b|\bwork out\b|\bcompute\b/g, " ");
+  s = s.replace(/\bopen bracket\b|\bopen parenthesis\b/g, " ( ");
+  s = s.replace(/\bclose bracket\b|\bclose parenthesis\b/g, " ) ");
+  s = s.replace(/\bmultiplied by\b|\btimes\b|\bmultiplied\b|\binto\b/g, " * ");
+  s = s.replace(/\bdivided by\b|\bdivide by\b|\bdivided\b|\bover\b/g, " / ");
+  s = s.replace(/\bplus\b|\badd\b/g, " + ");
+  s = s.replace(/\bminus\b|\bsubtract\b/g, " - ");
+  s = s.replace(/\bto the power of\b|\bpower of\b/g, " ^ ");
+  s = s.replace(/\bpercent of\b/g, " % ");
+  s = s.replace(/\bx\b/g, " * ");
+
+  const smallNumbers = {
+    zero: "0", one: "1", two: "2", three: "3",
+    four: "4", five: "5", six: "6", seven: "7",
+    eight: "8", nine: "9", ten: "10",
+    eleven: "11", twelve: "12", thirteen: "13",
+    fourteen: "14", fifteen: "15", sixteen: "16",
+    seventeen: "17", eighteen: "18", nineteen: "19",
+    twenty: "20", thirty: "30", forty: "40",
+    fifty: "50", sixty: "60", seventy: "70",
+    eighty: "80", ninety: "90"
+  };
+
+  s = s.replace(/\b[a-z]+\b/gi, word => {
+    if (smallNumbers[word] !== undefined) return smallNumbers[word];
+    return word;
+  });
+
+  // Combine number words such as "forty two" and "two hundred".
+  const words = s.trim().split(/\s+/);
+  const combined = [];
+  let current = 0;
+  let active = false;
+
+  for (const word of words) {
+    if (/^\d+$/.test(word) && smallNumbers[word] === undefined) {
+      if (active) {
+        combined.push(String(current));
+        current = 0;
+        active = false;
+      }
+      combined.push(word);
+    } else if (/^\d+$/.test(word)) {
+      const n = Number(word);
+      if (n === 100) {
+        current = (current || 1) * 100;
+        active = true;
+      } else if (n === 1000) {
+        current = (current || 1) * 1000;
+        active = true;
+      } else {
+        current += n;
+        active = true;
+      }
+    } else if (["+", "-", "*", "/", "^", "%", "(", ")"].includes(word)) {
+      if (active) {
+        combined.push(String(current));
+        current = 0;
+        active = false;
+      }
+      combined.push(word);
+    } else {
+      throw Error("I couldn't understand that number. Try saying the digits, like four hundred.");
+    }
+  }
+
+  if (active) combined.push(String(current));
+
+  const expression = combined.join(" ").replace(/\s+/g, " ").trim();
+
+  // Final validation occurs in solveMath().
+  return expression;
+}
+
+function startListening() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    voiceStatus.textContent =
+      "Voice input isn't supported in this browser. Try the latest Google Chrome or Microsoft Edge.";
+    return;
+  }
+
+  if (listening && recognition) {
+    recognition.stop();
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    listening = true;
+    voiceButton.classList.add("listening");
+    voiceButton.textContent = "🔴 Listening... tap to stop";
+    voiceStatus.textContent = "Speak clearly and say your calculation.";
+  };
+
+  recognition.onresult = event => {
+    const spoken = event.results[0][0].transcript;
+    voiceStatus.textContent = 'Heard: "' + spoken + '"';
+
+    try {
+      const math = spokenToMath(spoken);
+      expressionInput.value = math;
+      calculate();
+
+      if (resultDisplay.textContent !== "Try again") {
+        speakAnswer(lastAnswer);
+      }
+    } catch (error) {
+      voiceStatus.textContent = error.message;
+    }
+  };
+
+  recognition.onerror = event => {
+    const messages = {
+      "not-allowed": "Please allow microphone access in your browser.",
+      "no-speech": "I didn't hear anything. Please try again.",
+      "network": "Speech recognition needs a supported connection. Please try again."
+    };
+
+    voiceStatus.textContent =
+      messages[event.error] || "Voice input failed. Please try again.";
+  };
+
+  recognition.onend = () => {
+    listening = false;
+    voiceButton.classList.remove("listening");
+    voiceButton.textContent = "🎙️ Speak your calculation";
+  };
+
+  recognition.start();
+}
+
+function speakAnswer(answer) {
+  if (!("speechSynthesis" in window)) {
+    voiceStatus.textContent = "Answer displayed. Spoken answers aren't supported here.";
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(
+    "The answer is " + formatNumber(answer)
+  );
+
+  utterance.lang = "en-US";
+  utterance.rate = 0.95;
+
+  window.speechSynthesis.speak(utterance);
+}
+
+expressionInput.addEventListener("keydown", event => {
+  if (event.key === "Enter") calculate();
+});
+</script>
+
+</body>
+</html>
